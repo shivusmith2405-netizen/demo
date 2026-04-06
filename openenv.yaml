@@ -1,0 +1,42 @@
+version: "1.0"
+name: "Modern SRE OpenEnv"
+description: "A real-world simulation of service reliability engineering (SRE) tasks across a cloud-infrastructure stack."
+
+observation_space:
+  type: "dict"
+  schema:
+    services:
+      type: "list"
+      items:
+        type: "dict"
+        properties:
+          name: { type: "string" }
+          status: { type: "enum", values: ["RUNNING", "ERROR", "OFFLINE"] }
+          cpu_load: { type: "float", range: [0, 100] }
+          memory_usage: { type: "float", range: [0, 1000] }
+    logs_cleared: { type: "list", items: { type: "string" } }
+    reward: { type: "float", range: [0, 1] }
+
+action_space:
+  type: "dict"
+  commands:
+    restart_service:
+      parameters:
+        target: { type: "string", description: "Name of the service (API, DB, Auth)" }
+    kill_process:
+      parameters:
+        target: { type: "string", description: "Name of the service process to kill" }
+    clear_logs:
+      parameters:
+        target: { type: "string", description: "Name of the service whose logs to clear" }
+
+tasks:
+  - id: 1
+    name: "Easy: Service Down"
+    description: "API is OFFLINE, must restart."
+  - id: 2
+    name: "Medium: Zombie Process"
+    description: "DB in error state with high CPU, must kill then restart."
+  - id: 3
+    name: "Hard: Cascading Failure"
+    description: "Auth is down triggering API errors, must fix Auth then API."
